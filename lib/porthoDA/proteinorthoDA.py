@@ -1,23 +1,25 @@
 ﻿# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+# utilitaries functions for proteinorthoDA.py
+# Copyright (C) 2013  Institute for  Evolution and Biodiversity
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """
  proteinorthoDA is a wrapper around proteinortho.pl script using a 
  pre-clustering step based on domain arrangement similarity to speed up the 
  blast all against all step used by proteinorhto.
- Copyright (C) 2013  Institute for  Evolution and Biodiversity
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 __author__ = "Tristan Bitard Feildel"
@@ -34,6 +36,7 @@ from porthoDA.proteinorthoDA_err import ProteinorthoError, DASimilarityError
 from porthoDA.proteinorthoDA_err import ExecutionError, DependencyError 
 from porthoDA.proteinorthoDA_util import should_wait, check_program, timestamp
 from porthoDA.proteinorthoDA_util import error_clean, remove_dir, storage
+from porthoDA.proteinorthoDA_util import check_program_config
 from porthoDA.proteinorthoDA_worker import subprocess_threaded_blastdone
 from porthoDA.proteinorthoDA_IO import read_multifasta, read_porthoparams
 from porthoDA.proteinorthoDA_IO import write_results_daclusters, extractPFidDA
@@ -41,6 +44,7 @@ from porthoDA.proteinorthoDA_IO import write_results_porthodaclusters
 from porthoDA.proteinorthoDA_IO import read_dadone
 from porthoDA.proteinorthoDA_algo import run_proteinortho_blast
 from porthoDA.proteinorthoDA_algo import cluster_domains, compute_similarity
+
 
 __all__ = ['porthoDA_main']
 
@@ -237,18 +241,16 @@ def porthoDA_main():
         else:
             print >>sys.stderr, "\nWarning: "+msg
             
-    # pfam scan
-    check_pfam_scan = check_program("pfam_scan.pl")
-    if check_pfam_scan == None:
-        check_pfam_scan = check_program("pfam_scan")
-        if check_pfam_scan == None:
-            msg = "\nError: Unable to find pfam_scan(.pl) script"
-            error_clean(msg, 1, path_lock, p.verbose, starting_time)
-            raise DependencyError(msg)
-        else:
-            path_pfam_scan = check_pfam_scan
-    else:
-        path_pfam_scan = check_pfam_scan
+    # check that program in PATH.init (read by config in proteinorthoDA_util.py
+    # are all here
+    if not check_program_config():
+        msg = ("\nError: Unable to find all programs, please check your "
+        "PATH.init")
+        error_clean(msg, 1, path_lock, p.verbose, starting_time)
+        raise DependencyError(msg)
+    path_pfam_scan = config.get("annotation", "pfamscan")
+    check_proteinortho = config.get("similarity", "dasim")
+    
     if p.verbose:
         print path_pfam_scan.ljust(44), " ... found"
 

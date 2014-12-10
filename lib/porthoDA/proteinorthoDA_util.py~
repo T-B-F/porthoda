@@ -22,12 +22,22 @@ __institute__ = "Insitute for Evolution and Biodiversity"
 __lab__ = "Evolutionary Bioinformatics"
 __vesion__ = "1.0"
 
-import os, time, sys
+import ConfigParser, os, time, sys
 import shutil
 import networkx as nx
 
 __all__ = [ "should_wait", "check_program", "timestamp", "error_clean", 
             "remove_dir", "last_dir" ]
+
+# checking that the environment variable is present
+if not os.environ.get('PORTHODA'):
+    print >>sys.stderr, ("Please set the PORTHODA environ variable to the "
+                         "location of PATH.ini")
+    sys.exit(1)
+
+config = ConfigParser.ConfigParser()
+config.read(os.path.join(os.getenv("PORTHODA"),"PATH.ini"))
+
 
 def last_dir( path ) :
     """ Return the last directory of a path
@@ -154,7 +164,6 @@ def should_wait( lp, time2sleep, size ) :
 
 def check_program(program):
     """ Check in the $PATH if we found the program
-    TODO : Updated for window need to be checked
     from http://stackoverflow.com/questions/377017/test-if-executable-exists-in-python
     
     Parameter
@@ -187,16 +196,37 @@ def check_program(program):
                     return candidate
     return None
     
+def check_program_config(sections=[]):
+    """ check the program of the configparser
+    
+    Parameter
+    ---------
+    sections: list
+        list of sections to check
+    """
+    global config
+    quit = False
+    if not sections:
+        sections = config.sections()
+    for section in sections:
+        for key, program in config.items(section):
+            path = check_program(program)
+            if path == None:
+                print >>sys.stderr, ("Error : unable to find program path {} "
+                                           "from config file ".format(program))
+                quit=True
+    return quit
+        
 def timestamp(s,start_time):
     """ Display the ealpsed time since the start of the program with a specific
     sentence
     
     Parameter
     ---------
-        s : string 
-            sentence to display
-        start_time : int 
-            the starting time of the program
+    s : string 
+        sentence to display
+    start_time : int 
+        the starting time of the program
     """
     t = time.gmtime(time.time() - start_time)
     print s.ljust(44), time.strftime('%H:%M:%S', t)  
