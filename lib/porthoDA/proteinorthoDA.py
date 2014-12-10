@@ -22,6 +22,30 @@
  blast all against all step used by proteinorhto.
 """
 
+############################################################################
+# suggested tree structure of the program directories output
+#
+# workdir /
+#     |
+#     | .lock
+#     | ----- da /
+#     | ----- tmpdir (exp 1)/
+#                | .lock_param
+#                | ----- fasta / 
+#                | ----- portho / 
+#                | ----- result / 
+#
+# or 
+# workdir /
+#     |
+#     | .lock
+#     | ----- da /
+# tmpdir (exp 1)/
+#     | .lock_param
+#     | ----- fasta / 
+#     | ----- portho / 
+#     | ----- result / 
+
 __author__ = "Tristan Bitard Feildel"
 __email__ = "t.bitard.feildel@uni-muenster.de"
 __institute__ = "Insitute for Evolution and Biodiversity"
@@ -29,7 +53,8 @@ __lab__ = "Evolutionary Bioinformatics"
 __vesion__ = "0.5"
 
 import os, sys, subprocess, multiprocessing, pickle
-import time, tarfile, shutil, shlex
+import time, tarfile, shutil, shlex, argparse
+
 
 from porthoDA.proteinorthoDA_err import LockError, ArgumentError, ResultError
 from porthoDA.proteinorthoDA_err import ProteinorthoError, DASimilarityError
@@ -45,9 +70,77 @@ from porthoDA.proteinorthoDA_IO import read_dadone
 from porthoDA.proteinorthoDA_algo import run_proteinortho_blast
 from porthoDA.proteinorthoDA_algo import cluster_domains, compute_similarity
 
-
 __all__ = ['porthoDA_main']
 
+def process_arguments()
+    """ process arguments with the argument parser module
+    
+    Return
+    ------
+    params: object
+        argparse object storing arguments
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", action="store", dest="workdir",  
+        help="working directory")
+    parser.add_argument("-t", action="store", dest="tmpdir", default=None,
+        help="temporary directory for proteinortho intermediate results")
+    parser.add_argument("-i", action="store", dest="listproteomes",  
+        help="files with proteomes list")
+    parser.add_argument("-c", action="store", dest="cutoff", type=float,
+        help="cutoff similarity, only score higher than cutoff are conserved")
+    parser.add_argument("-m", action="store", dest="matrix", 
+        help="path to matrix file (must correspond to the pfam database)")
+    parser.add_argument("-p", action="store", dest="pfamdb", 
+        help="path to pfam database (must correspond to the matrix)")
+    parser.add_argument("-O", action="store", dest="order", default=1, type=int, 
+       help="control the order of magnitude used by compute_similarity [def:1]")
+    parser.add_argument("-o", action="store", dest="output", help="output file")
+    parser.add_argument("-n", action="store", dest="nb_job", 
+        help="number of job running at the same time", type=int, default=50)
+    parser.add_argument("-k", action="store", dest="kcluster", type=int , 
+        help="number of cluster")
+    parser.add_argument("--maskrepeat", action="store_true", dest="maskrepeat",
+        help="mask repeat in proteins", default=False) 
+    parser.add_argument("-f", "--force", action="store_true", dest="force", 
+        help="force parameters", default=False)
+    parser.add_argument("--daonly", action="store_true", dest="daonly", 
+        help="cluster only on domain arrangement similarity", default=False)
+    parser.add_argument("--dadone", action="store_true", dest="dadone", 
+        help="choose to not run domain similarity", default=False)
+    parser.add_argument("--pfamonly", action="store_true", dest="pfamonly", 
+        help="choose to only run pfamscan", default=False)
+    parser.add_argument("--pfamdone", action="store_true", dest="pfamdone", 
+        help="choose to not run pfamscan", default=False)
+    parser.add_argument("--blastonly", action="store_true", dest="blastonly", 
+        help="choose to only run blast", default=False)
+    parser.add_argument("--blastdone", action="store_true", dest="blastdone", 
+        help="choose to not run blast", default=False)        
+    parser.add_argument("--portho", action="store", dest="porthoparams", 
+        help="run proteinortho with specific parameters", default=None)
+    parser.add_argument("--optics-eps", action="store", dest="epsilon", 
+        help="The upper bound epsilon parameters for OPTICS algorithms", 
+        type=float, default=0.5)
+    parser.add_argument("--optics-epsprime", action="store", dest="epsilon_p", 
+        help="The second epsilon parameters for OPTICS algorithms", type=float, 
+        default=0.2)
+    parser.add_argument("--optics-minpts", action="store", dest="minpts", 
+        help="The minpoints parameters for OPTICS algorithms", type=float, 
+        default=5)
+    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", 
+        help="verbose information", default=False)
+    parser.add_argument("--clean-lock", action="store_true", dest="cleanlock", 
+        help="clean the lock files", default=False)
+    parser.add_argument("--clean-proteinortho", action="store_true", dest="cleanproteinortho", 
+        help="clean the proteinortho directories (ie -t dir)", default=False)
+    parser.add_argument("--clean-pfamscan", action="store_true", dest="cleanpfamscan", 
+        help="clean the pfamscan directory", default=False)
+    parser.add_argument("--clean-all", action="store_true", dest="cleanall", 
+        help="clean the working directory", default=False)
+
+    params = parser.parse_args()
+    return params
+    
 # main fonction
 def porthoDA_main():
     """ proteinorthoDA is a python package and software build around the 
@@ -56,63 +149,6 @@ def porthoDA_main():
     space search of proteinortho by only looking at protein sharing a similar
     domain arrangement as potential orthologous proteins.
     """
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-w", action="store", dest="workdir",  help="working directory")
-    parser.add_argument("-t", action="store", dest="tmpdir",  help="temporary directory for proteinortho intermediate results", default=None)
-    parser.add_argument("-i", action="store", dest="listproteomes",  help="files with proteomes list")
-    parser.add_argument("-c", action="store", dest="cutoff", help="cutoff similarity, only score higher than cutoff are conserved", type=float)
-    parser.add_argument("-m", action="store", dest="matrix", help="path to matrix file (must correspond to the pfam database)")
-    parser.add_argument("-p", action="store", dest="pfamdb", help="path to pfam database (must correspond to the matrix)")
-    parser.add_argument("-O", action="store", dest="order", help="control the order of magnitude used by compute_similarity [def:1]", default=1, type=int)
-    parser.add_argument("-o", action="store", dest="output", help="output file")
-    parser.add_argument("-n", action="store", dest="nb_job", help="number of job running at the same time", type=int, default=50)
-    parser.add_argument("-k", action="store", dest="kcluster", help="number of cluster", type=int)
-    parser.add_argument("--maskrepeat", action="store_true", dest="maskrepeat", help="mask repeat in proteins", default=False) 
-    parser.add_argument("-f", "--force", action="store_true", dest="force", help="force parameters", default=False)
-    parser.add_argument("--daonly", action="store_true", dest="daonly", help="cluster only on domain arrangement similarity", default=False)
-    parser.add_argument("--dadone", action="store_true", dest="dadone", help="choose to not run domain similarity", default=False)
-    parser.add_argument("--pfamonly", action="store_true", dest="pfamonly", help="choose to only run pfamscan", default=False)
-    parser.add_argument("--pfamdone", action="store_true", dest="pfamdone", help="choose to not run pfamscan", default=False)
-    parser.add_argument("--blastonly", action="store_true", dest="blastonly", help="choose to only run blast", default=False)
-    parser.add_argument("--blastdone", action="store_true", dest="blastdone", help="choose to not run blast", default=False)        
-    parser.add_argument("--portho", action="store", dest="porthoparams", help="run proteinortho with specific parameters", default=None)
-    parser.add_argument("--optics-eps", action="store", dest="epsilon", help="The upper bound epsilon parameters for OPTICS algorithms", type=float, default=0.5)
-    parser.add_argument("--optics-epsprime", action="store", dest="epsilon_p", help="The second epsilon parameters for OPTICS algorithms", type=float, default=0.2)
-    parser.add_argument("--optics-minpts", action="store", dest="minpts", help="The minpoints parameters for OPTICS algorithms", type=float, default=5)
-    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", help="verbose information", default=False)
-    parser.add_argument("--clean-lock", action="store_true", dest="cleanlock", help="clean the lock files", default=False)
-    parser.add_argument("--clean-proteinortho", action="store_true", dest="cleanproteinortho", help="clean the proteinortho directories (ie -t dir)", default=False)
-    parser.add_argument("--clean-pfamscan", action="store_true", dest="cleanpfamscan", help="clean the pfamscan directory", default=False)
-    parser.add_argument("--clean-all", action="store_true", dest="cleanall", help="clean the working directory", default=False)
-
-    p = parser.parse_args()
-    
-    
-    ############################################################################
-    # suggested tree structure of the program directories output
-    #
-    # workdir /
-    #     |
-    #     | .lock
-    #     | ----- da /
-    #     | ----- tmpdir (exp 1)/
-    #                | .lock_param
-    #                | ----- fasta / 
-    #                | ----- portho / 
-    #                | ----- result / 
-    #
-    # or 
-    # workdir /
-    #     |
-    #     | .lock
-    #     | ----- da /
-    # tmpdir (exp 1)/
-    #     | .lock_param
-    #     | ----- fasta / 
-    #     | ----- portho / 
-    #     | ----- result / 
-
     
     ############################################################################
     # Check if lock file exist 
