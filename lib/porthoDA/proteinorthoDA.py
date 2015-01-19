@@ -233,11 +233,14 @@ def porthoDA_main():
         raise LockError(msg)
 
     if os.path.isfile(path_lock_param): 
-        h = open(path_lock_param)
-        f = h.readlines()
-        h.close()
-        old_cutoff = float(f[0].strip())
-        old_order = int(f[1].strip())
+        with open(path_lock_param) as inf:
+            old_cutoff = p.cutoff
+            old_order = p.order
+            for i, line in enumerate(inf):
+                if i == 0:
+                    old_cutoff = float(line.strip())
+                elif i == 1:
+                    old_order = int(line.strip())
         if old_cutoff != p.cutoff or old_order != p.order:
             msg = u"Error: Previous result of this directory doesn't match\n"
             msg += u"        new input parameters for domain similarity\n"
@@ -387,18 +390,16 @@ def porthoDA_main():
     path_proteomes = {}
     name_proteomes = {}
     ddfasta = {}
-    h = open(p.listproteomes)
-    f = h.readlines()
-    h.close()
     cnt = 0    
-    if p.verbose:
-        timestamp("Reading fasta files ... ", starting_time)
-    for line in f:
-        path_proteomes[cnt] = line.strip()
-        _, name_proteomes[cnt] = os.path.split(line.strip())
-        dfasta = read_multifasta(line.strip())
-        ddfasta[cnt] = dfasta
-        cnt += 1 
+    with open(p.listproteomes) as inf:
+        if p.verbose:
+            timestamp("Reading fasta files ... ", starting_time)
+        for line in inf:
+            path_proteomes[cnt] = line.strip()
+            _, name_proteomes[cnt] = os.path.split(line.strip())
+            dfasta = read_multifasta(line.strip())
+            ddfasta[cnt] = dfasta
+            cnt += 1 
     if p.verbose:
         print "done"
 
@@ -699,43 +700,43 @@ def porthoDA_main():
             raise ResultError(msg)
             
         path_res = os.path.join(dres, "info_proteinortho_"+str(cnt)+".dat")
-        h = open(path_res) 
-        f = h.readlines()
-        h.close()
-        # the format is sp<int>.fasta
-        species = [int(sp[2:].split(".")[0]) for sp in f[0].split()[offset:]] 
         
-        # store every clusters
-        for line in f[2:]: # two header lines
-            if line[0] == "#": 
-                footer = line 
-                continue
-            
-            else:
-                tmp = line.split()
-                nbspecies = tmp[0]
-                nbproteins = tmp[1]
-                nbconn = tmp[2]
-                prots = tmp[3:]
-                tmp = tuple()
+        with open(path_res) as inf:
+            line = inf.readline()
+            # the format is sp<int>.fasta
+            species = [int(sp[2:].split(".")[0]) for sp in line.split()[offset:]] 
+            line = inf.readline() # second header
+            # store every clusters
+            for line in inf: # two header lines
+                if line[0] == "#": 
+                    footer = line 
+                    continue
                 
-                for i, prot in enumerate(prots):
-                    if prot != "*":
-                        tmp += ((species[i], prot),)
-                        portho_info.setdefault(species[i], {})
-                        
-                        for p_ in prot.split(","):
-                            portho_path_out = os.path.join(
-                                dres, "info_proteinortho_" + str(cnt) + ".dat")
-                            if portho_info[species[i]].has_key(p_):
-                                print >>sys.stderr, "Possible multiple key entry for protein "+p_+" path: "
-                                print >>sys.stderr, "    "+portho_info[species[i]][p_]
-                                print >>sys.stderr, "    "+portho_path_out
-                                
-                            portho_info[species[i]][p_] = portho_path_out
+                else:
+                    tmp = line.split()
+                    nbspecies = tmp[0]
+                    nbproteins = tmp[1]
+                    nbconn = tmp[2]
+                    prots = tmp[3:]
+                    tmp = tuple()
+                    
+                    for i, prot in enumerate(prots):
+                        if prot != "*":
+                            tmp += ((species[i], prot),)
+                            portho_info.setdefault(species[i], {})
                             
-                dresults[fam] = (nbspecies, nbproteins, nbconn, tmp)
-                fam += 1
+                            for p_ in prot.split(","):
+                                portho_path_out = os.path.join(
+                                    dres, "info_proteinortho_" + str(cnt) + ".dat")
+                                if portho_info[species[i]].has_key(p_):
+                                    print >>sys.stderr, "Possible multiple key entry for protein "+p_+" path: "
+                                    print >>sys.stderr, "    "+portho_info[species[i]][p_]
+                                    print >>sys.stderr, "    "+portho_path_out
+                                    
+                                portho_info[species[i]][p_] = portho_path_out
+                                
+                    dresults[fam] = (nbspecies, nbproteins, nbconn, tmp)
+                    fam += 1
         
         tar = tarfile.open(dres_gz, "w:gz")
         tar.add(dres, arcname="sub"+str(cnt))
