@@ -21,6 +21,8 @@
 and analysis
 """
 
+import os, sys, multiprocessing
+
 import numpy as np
 import networkx as nx
 
@@ -64,64 +66,64 @@ def run_proteinortho_blast ( clusters, uniq_da, ddfasta, params) :
     Returns
     -------
     listsub : list 
-        the list of all submitted clusters ( for blastdone part )
+        the list of all submitted clusters (for blastdone part)
     """
-    listsub = [ ]
-    dpid = { }
-    lp = [ ]
-    pool_blastonly = multiprocessing.Pool( processes = params.nb_job )
-    dicres = { }
+    listsub = []
+    dpid = {}
+    lp = []
+    pool_blastonly = multiprocessing.Pool(processes = params.nb_job)
+    dicres = {}
     
-    for cnt, compo in enumerate( clusters ):
-        subfamily = [ ]
+    for cnt, compo in enumerate(clusters):
+        subfamily = []
         
         for da in compo :
-            spprots = uniq_da[ da ] # uniq_da is the dictionary associating a domain arrangement to a list of species/proteins tuple
+            spprots = uniq_da[da] # uniq_da is the dictionary associating a domain arrangement to a list of species/proteins tuple
             
             for spprot in spprots :  
-                subfamily.append( spprot )
+                subfamily.append(spprot)
                 
-        dportho = os.path.join( params.portho_dir , "sub" + str( cnt ) )
-        dres = os.path.join( params.res_dir , "sub" + str( cnt ) )
+        dportho = os.path.join( params.portho_dir , "sub" + str(cnt))
+        dres = os.path.join( params.res_dir , "sub" + str(cnt))
         
         # create a sub directory per components
-        if os.path.isdir ( dportho ) == False :
-            os.mkdir( dportho )
+        if os.path.isdir (dportho) == False :
+            os.mkdir(dportho)
             
-        if os.path.isdir ( dres ) == False :
-            os.mkdir( dres )
+        if os.path.isdir(dres) == False :
+            os.mkdir(dres)
             
         # and create fasta files one per specie in one folder per group
-        lsp = set( [ ] )
-        fasta_files = { }
+        lsp = set([])
+        fasta_files = {}
         
         for spprot in subfamily :
-            sp,prot = spprot.split( ";" )
-            lsp.add( sp )
-            fasta = ddfasta[ int( sp ) ][ prot ]
-            pathfasta = os.path.join( dportho, "sp" + str( sp ) + ".fasta" )
-            ret = fasta_files.setdefault( pathfasta , [ ] ).append( ">" + prot + "\n" + fasta + "\n" )
+            sp,prot = spprot.split(";")
+            lsp.add(sp)
+            fasta = ddfasta[int(sp) ][prot]
+            pathfasta = os.path.join(dportho, "sp" + str(sp) + ".fasta")
+            ret = fasta_files.setdefault(pathfasta, []).append(">" + prot + "\n" + fasta + "\n")
             
-        for fasta_file in fasta_files :
-            sortie = file( fasta_file ,"w" )
+        for fasta_file in fasta_files:
+            sortie = file(fasta_file,"w")
             
-            for line in fasta_files[ fasta_file ] :
-                sortie.write( line )
+            for line in fasta_files[fasta_file]:
+                sortie.write(line)
                 
-            sortie.close( )
+            sortie.close()
 
-        if len(lsp) < 2 : # cannot run protein ortho on a single specie cluster
+        if len(lsp) < 2: # cannot run protein ortho on a single specie cluster
             continue   
         
-        pathlist = os.path.join( params.portho_dir , "list_sub"+str(cnt)+".dat" )
-        listsub.append( (pathlist, cnt) )
-        sortie = file( pathlist ,"w")
+        pathlist = os.path.join(params.portho_dir , "list_sub"+str(cnt)+".dat")
+        listsub.append((pathlist, cnt))
+        sortie = file(pathlist ,"w")
         
         for sp in lsp :
-            pathfasta = os.path.join( dportho, "sp" + str( sp ) + ".fasta" )
-            sortie.write( pathfasta+"\n" )
+            pathfasta = os.path.join(dportho, "sp" + str(sp) +".fasta")
+            sortie.write(pathfasta+"\n")
             
-        sortie.close( )
+        sortie.close()
         ##########################################################################
         # run proteinortho on each of this sub fasta species    
         # run only blast
@@ -188,10 +190,10 @@ def compute_similarity( luniq_da, tmpdir, p, starting_time, path_compute_similar
     cnt = 0 
     cnt_file = 0    
     if p.verbose :
-        timestamp( "... froms scratch ", starting_time )
-    da_similarity = { }
+        timestamp( "... froms scratch ", starting_time)
+    da_similarity = {}
     # GDA is a graph of domain arrangement similarity, node = domain arrangement, edge = similarity
-    GDA = nx.Graph( )
+    GDA = nx.Graph()
     lp = [ ]
     da_dir_tmp = os.path.join( tmpdir , "tmp" )
     if os.path.isdir ( da_dir_tmp ) == False:
@@ -200,7 +202,7 @@ def compute_similarity( luniq_da, tmpdir, p, starting_time, path_compute_similar
     da_dir_tmp_out = os.path.join( da_dir_tmp, "list_da_"+str(cnt_file)+".dat" )
     da_list_out = file( da_dir_tmp_out ,"w" )
     pool_sim = multiprocessing.Pool( processes=p.nb_job ) 
-    dres = { }
+    dres = {}
     nb_uniq_da = len( luniq_da )
     # for domain arrangement compute the pairwise similarity 
     for i, str_dai in enumerate( luniq_da ):

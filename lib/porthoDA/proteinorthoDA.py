@@ -55,13 +55,13 @@ __vesion__ = "0.5"
 import os, sys, subprocess, multiprocessing, pickle
 import time, tarfile, shutil, shlex, argparse
 
-
-from porthoDA.proteinorthoDA_err import LockError, ArgumentError, ResultError
 from porthoDA.proteinorthoDA_err import ProteinorthoError, DASimilarityError
 from porthoDA.proteinorthoDA_err import ExecutionError, DependencyError 
+from porthoDA.proteinorthoDA_err import ResultError
 from porthoDA.proteinorthoDA_util import should_wait, check_program, timestamp
 from porthoDA.proteinorthoDA_util import error_clean, remove_dir, storage
-from porthoDA.proteinorthoDA_util import check_program_config
+from porthoDA.proteinorthoDA_util import check_program_config, check_parameters
+from porthoDA.proteinorthoDA_util import prepare_lock, config
 from porthoDA.proteinorthoDA_worker import subprocess_threaded_blastdone
 from porthoDA.proteinorthoDA_IO import read_multifasta, read_porthoparams
 from porthoDA.proteinorthoDA_IO import write_results_daclusters, extractPFidDA
@@ -72,7 +72,8 @@ from porthoDA.proteinorthoDA_algo import cluster_domains, compute_similarity
 
 __all__ = ['porthoDA_main']
 
-def process_arguments()
+
+def process_arguments():
     """ process arguments with the argument parser module
     
     Return
@@ -82,11 +83,11 @@ def process_arguments()
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-w", action="store", dest="workdir",  
-        help="working directory")
+        help="working directory", required=True)
     parser.add_argument("-t", action="store", dest="tmpdir", default=None,
         help="temporary directory for proteinortho intermediate results")
     parser.add_argument("-i", action="store", dest="listproteomes",  
-        help="files with proteomes list")
+        help="files with proteomes list", required=True)
     parser.add_argument("-c", action="store", dest="cutoff", type=float,
         help="cutoff similarity, only score higher than cutoff are conserved")
     parser.add_argument("-m", action="store", dest="matrix", 
@@ -149,6 +150,8 @@ def porthoDA_main():
     space search of proteinortho by only looking at protein sharing a similar
     domain arrangement as potential orthologous proteins.
     """
+    
+    p = process_arguments()
     
     ############################################################################
     # Check if lock file exist 
@@ -216,45 +219,11 @@ def porthoDA_main():
 
 
     ############################################################################
-    # creating lock
-        
-    if os.path.isfile(path_lock):
-        msg = u"Error: This directorty is currently used or the job using "
-        msg += u"this directory didn't reach the end of the script.\n"
-        msg += u"        Please choose an other directory or delete the .lock* "
-        msg += u"files inside the directory.\n"
-        msg += u"        (you can use --clean-lock option for this operation)\n"
-        msg += u"        If previous analysis have been done in this directory,"
-        msg += u"they would disturbe the new one.\n"
-        msg += u"        To clean proteinorhto result use --clean-proteinortho "
-        msg += u"option.\n"
-        msg += u"        To clean pfamscan result use --clean-pfamscan option."
-        msg += u"\n        To clean everything use --clean-all.\n"
-        raise LockError(msg)
-
-    if os.path.isfile(path_lock_param): 
-        h = open(path_lock_param)
-        f = h.readlines()
-        h.close()
-        old_cutoff = float(f[0].strip())
-        old_order = int(f[1].strip())
-        if old_cutoff != p.cutoff or old_order != p.order:
-            msg = u"Error: Previous result of this directory doesn't match\n"
-            msg += u"        new input parameters for domain similarity\n"
-            msg += u"        Please use the same parameter or use a different "
-            msg += u"working directory.\n"
-            msg += u"        Old parameters: cutoff {}, order {} .\n"\
-                .format(old_cutoff, old_order)
-            msg += u"        New parameters: cutoff {}, order {} .\n"\
-                .format(p.cutoff, p.order)
-            msg += u"        Proteinortho parameters can't be changed without "
-            msg += u"any problems, \n"
-            msg += u"        specify new parameters with --portho parameters.\n"
-            raise LockError(msg)
-        else:
-            if p.verbose:
-                print ("Same previous parameters detected for domain "
-                       "similarity, continue")
+    # creating and checking lock
+    try:
+        prepare_lock(p, path_lock, path_lock_param)
+    except:
+        raise
 
     # start here, after error message
     starting_time = time.time()
@@ -264,52 +233,23 @@ def porthoDA_main():
 
     ###########################################################################
     # programm check (pfamscan and proteinortho)        
-
-    # number of cpu
-    nbcpu = multiprocessing.cpu_count()
-    if p.nb_job > nbcpu:
-        msg = "number of cpu requested {} ".format(p.nb_job)
-        msg += "superior to the number of cpu present {}".format(nbcpu)
-        if p.force == False:
-            msg = "\nError: "+ msg
-            error_clean(msg, 1, path_lock, p.verbose, starting_time)
-            raise ArgumentError(msg)
-        else:
-            print >>sys.stderr, "\nWarning: "+msg
             
     # check that program in PATH.init (read by config in proteinorthoDA_util.py
     # are all here
-    if not check_program_config():
+    res_check = check_program_config()
+    print res_check
+    if not res_check:
         msg = ("\nError: Unable to find all programs, please check your "
         "PATH.init")
         error_clean(msg, 1, path_lock, p.verbose, starting_time)
         raise DependencyError(msg)
     path_pfam_scan = config.get("annotation", "pfamscan")
-    check_proteinortho = config.get("similarity", "dasim")
+    path_proteinortho = config.get("clustering", "proteinortho")
+    path_compute_similarity = config.get("similarity", "dasim")
     
     if p.verbose:
         print path_pfam_scan.ljust(44), " ... found"
-
-    # proteinortho.pl        
-    check_proteinortho = check_program("proteinortho4.pl")
-    if check_proteinortho == None:
-        msg = "\nError: Unable to find proteinortho4.pl script"
-        error_clean(msg, 1, path_lock, p.verbose, starting_time)
-        raise DependencyError(msg)
-    else:
-        path_proteinortho = check_proteinortho
-    if p.verbose:
-        print path_proteinortho.ljust(44), " ... found"
-    
-    # check compute_similarity 
-    check_compute_similarity = check_program("compute_similarity")
-    if check_proteinortho == None:
-        msg = "\nError: Unable to find compute_similarity software"
-        error_clean(msg, 1, path_lock, p.verbose, starting_time)
-        raise DependencyError(msg)
-    else:
-        path_compute_similarity = check_compute_similarity
-    if p.verbose:
+        print path_proteinortho.ljust(44), " ... found"        
         print path_compute_similarity.ljust(44), " ... found"
         
     # check if user want some specific parameters for proteinortho
@@ -320,34 +260,10 @@ def porthoDA_main():
 
     ###########################################################################
     # parameter check
-    if p.pfamonly and p.pfamdone:
-        msg = "\nError: Cannot use both pfamonly and pfamdone at the same time"
-        msg += "\n"
-        error_clean(msg, 1, path_lock, p.verbose, starting_time)
-        raise ArgumentError(msg)
-    
-    if p.pfamonly == False and p.pfamdone == False:
-        bothpfamonlyanddone = True
-    else:
-        bothpfamonlyanddone = False
-
-    # parameter check
-    if p.blastdone and p.blastonly:
-        msg = "\nError: Cannot use both blastonly and blastdone at the same "
-        msg += "time\n"
-        error_clean(msg, 1, path_lock, p.verbose, starting_time)
-        raise ArgumentError(msg)
-
-    if p.blastonly == False and p.blastdone == False:
-        bothblastonlyanddone = True
-    else:
-        bothblastonlyanddone = False
-        
-    if p.daonly and (p.blastonly or p.blastdone):
-        msg = "\nError: Cannot use domain arrangement similarity and sequence"
-        msg += "similarity clustering at the same time\n"
-        error_clean(msg, 1, path_lock, p.verbose, starting_time)
-        raise ArgumentError(msg)
+    try:
+        bothpfamonlyanddone, bothblastonlyanddone = check_parameters(p)
+    except:
+        raise
 
     ###########################################################################
     # create or check if working directory is empty 
@@ -706,6 +622,7 @@ def porthoDA_main():
         species = [int(sp[2:].split(".")[0]) for sp in f[0].split()[offset:]] 
         
         # store every clusters
+        footer= ""
         for line in f[2:]: # two header lines
             if line[0] == "#": 
                 footer = line 
@@ -756,4 +673,10 @@ def porthoDA_main():
     
     # exit successfuly 
     return 0
+    
+if __name__ == "__main__":
+    ext = porthoDA_main()
+    sys.exit(ext)
+
+
     
