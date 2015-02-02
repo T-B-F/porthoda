@@ -97,20 +97,18 @@ def extractPFidDA( pfamscanfile , replace_by_clan = False, mask_repeat=False) :
     ------
         dprot a dictionary [ protein ] [ domain_arrangement_1, ... ]
     """
-    h = open( pfamscanfile ) 
-    line = h.readline( )
     dprot = { }
-    while line != "" :
-        if line[0] == "\n" or line[0] == "#" : 
-            line = h.readline( )
-            continue 
-        tmp = line.split( )
-        dom = tmp[5].split(".")[0]
-        if replace_by_clan :
-            if tmp[14] != "No_clan" :
-                dom = tmp[14]
-        ret = dprot.setdefault( tmp[0], [] ).append( dom )
-        line = h.readline( )
+    with open(pfamscanfile)  as inf:
+        line = h.readline( ) # header
+        for line in inf:
+            if line[0] == "\n" or line[0] == "#" : 
+                continue 
+            tmp = line.split( )
+            dom = tmp[5].split(".")[0]
+            if replace_by_clan :
+                if tmp[14] != "No_clan" :
+                    dom = tmp[14]
+            ret = dprot.setdefault( tmp[0], [] ).append( dom )
     if mask_repeat :
         for prot in dprot :
             doms = dprot[prot]
@@ -133,22 +131,21 @@ def extract_PFid_to_xdom( pfamscanfile , replace_by_clan = False) :
     """
     # Nested domains are removed, this file will be used by rads/rampage and 
     # currently the program doesn't handle nested domains
-    h = open( pfamscanfile ) 
-    line = h.readline( )
     dprot = { }
-    while line != "" :
-        if line[0] == "\n" or line[0] == "#" : 
-            line = h.readline( )
-            continue 
-        tmp = line.split( )
-        dom = tmp[5].split(".")[0]
-        start = int(tmp[1])
-        end = int( tmp[2] )
-        if replace_by_clan :
-            if tmp[14] != "No_clan" :
-                dom = tmp[14]
-        ret = dprot.setdefault( tmp[0], [] ).append( (dom,start,stop) )
-        line = h.readline( )
+    with open(pfamscanfile) as inf:
+        line = h.readline() # header
+        for line in inf:
+            if line[0] == "\n" or line[0] == "#" : 
+                continue 
+            tmp = line.split( )
+            dom = tmp[5].split(".")[0]
+            start = int(tmp[1])
+            end = int( tmp[2] )
+            if replace_by_clan :
+                if tmp[14] != "No_clan" :
+                    dom = tmp[14]
+            ret = dprot.setdefault( tmp[0], [] ).append( (dom,start,stop) )
+            
     return dprot
 
 def read_multifasta( filename ) :
@@ -159,25 +156,17 @@ def read_multifasta( filename ) :
         filename : path to the multifasta file
     Return 
     ------
-        d : a dictionary associating d[ fasta header ] = fasta sequence
+        dfasta : a dictionary associating dfasta[ fasta header ] = fasta sequence
     """
-    d = { }
-    head = None 
-    f = open(filename)
-    for line in f :
-        if line[0] == ">" :
-            if head != None :
-                d[head] = seq
-            head = line[1:].split()[0] # fasta header name is the first entry before a space
-            seq = ""
-        else :
-            seq += line.strip()
-    if line[0] != ">" and seq != "":
-        d[head] = seq
-    else :
-        raise ValueError,"Expected an amino acid sequence in last line"
-    f.close( )
-    return d 
+    dfasta = {}
+    with open(filename) as inf:
+        for line in inf :
+            if line[0] == ">" :
+                head = line[1:].split()[0] # fasta header name is the first entry before a space
+                dfasta[head] = ""
+            else :
+                dfasta[head] += line.strip()
+    return dfasta 
 
 def read_porthoparams( pathfile, porthopath ) :
     """ Read a file with proteinortho.pl user specific parameter
@@ -198,28 +187,26 @@ def read_porthoparams( pathfile, porthopath ) :
     need_value = [1,1,1,1,1,1,0,0,0,0,1,0,0]
     incompatible = ["-dir","-remove","-batch","-blastonly","-blastdone","-log",
     "-o","-verbose","-debug" ]
-    h = open(pathfile)
-    f = h.readlines()
-    h.close( )
-    for line in f :
-        param = line[:-1]
-        tmp = param.split("=")
-        if tmp[0] in incompatible :
-            print >>sys.stderr, "Error : Incompatible proteinortho parameters (%s) in %s"%(param,pathfile)
-            sys.exit(1)
-        if tmp[0] not in list_params :
-            print >>sys.stderr, "Error : Unknown parameters %s for "+porthopath+" in %s"%(param,pathfile)
-            sys.exit( 1 )
-        if "=" in param and tmp[1] == "" :
-            print >>sys.stderr, "Error : Parameters (%s) in %s need a parameter value"%(param,pathfile)
-            print >>sys.stderr, "        Check '"+porthopath+" -h' for more information"
-            sys.exit(1)
-        i = list_params.index( tmp[0] )
-        if need_value[i] == 1 and len( tmp ) == 1 :
-            print >>sys.stderr, "Error : Parameters (%s) in %s need a parameter value"%(param,pathfile)
-            print >>sys.stderr, "        Check '"+porthopath+" -h' for more information"
-            sys.exit(1)
-        portho_params.append( params )
+    with open(pathfile) as inf:
+        for line in inf :
+            param = line[:-1]
+            tmp = param.split("=")
+            if tmp[0] in incompatible :
+                print >>sys.stderr, "Error : Incompatible proteinortho parameters (%s) in %s"%(param,pathfile)
+                sys.exit(1)
+            if tmp[0] not in list_params :
+                print >>sys.stderr, "Error : Unknown parameters %s for "+porthopath+" in %s"%(param,pathfile)
+                sys.exit( 1 )
+            if "=" in param and tmp[1] == "" :
+                print >>sys.stderr, "Error : Parameters (%s) in %s need a parameter value"%(param,pathfile)
+                print >>sys.stderr, "        Check '"+porthopath+" -h' for more information"
+                sys.exit(1)
+            i = list_params.index( tmp[0] )
+            if need_value[i] == 1 and len( tmp ) == 1 :
+                print >>sys.stderr, "Error : Parameters (%s) in %s need a parameter value"%(param,pathfile)
+                print >>sys.stderr, "        Check '"+porthopath+" -h' for more information"
+                sys.exit(1)
+            portho_params.append( params )
     return portho_params
                                                                                                                                                                                                                                                                        
     
@@ -255,37 +242,35 @@ def write_results_daclusters( clusters, uniq_da, name_proteomes, param ) :
                 tot_prot += 1 
             
     # create one single file
-    sortie = file( param.output, "w" )
-    sortie.write("#species\tproteins\talg.-conn.")
-    for sp in lsp :
-        sortie.write("\t"+name_proteomes[sp]) 
-        
-    sortie.write( "\n" )
-    sortie.write("#"+str(len(portho_info.keys()))+"\t"+str(tot_prot)+"\t-")
-    
-    for sp in lsp :
-        if portho_info.has_key( sp ) : # no key mean no protein of this specie found in a cluster
-            sortie.write("\t"+str(portho_info[sp]))
-        else :
-            sortie.write("\t0")
-    sortie.write("\n")
-        
-    for cnt in dresults :
-        nbspecies = len(dresults[cnt].keys())
-        nbprots = sum( [ len(val) for val in dresults[cnt].values() ] )
-        new_line = str(nbspecies) + "\t"+ str(nbprots) + "\tNan"
+    with open(param.output, "w") as sortie:
+        sortie.write("#species\tproteins\talg.-conn.")
         for sp in lsp :
-            if dresults[cnt].has_key( str(sp) ) :
-                prots = ",".join( dresults[cnt][str(sp)] )
-                new_line += "\t" + prots
-            else :
-                new_line += "\t*"
-        sortie.write( new_line + "\n" )
-    sortie.write("#cutoff:{}\torder:{}\trepeat:{}\tepsilon:{}\tminpts:{}\n"\
-                 .format(param.cutoff, param.order,param.maskrepeat,
-                         param.epsilon,param.minpts) )
-    sortie.close( )
+            sortie.write("\t"+name_proteomes[sp]) 
+            
+        sortie.write( "\n" )
+        sortie.write("#"+str(len(portho_info.keys()))+"\t"+str(tot_prot)+"\t-")
     
+        for sp in lsp :
+            if portho_info.has_key( sp ) : # no key mean no protein of this specie found in a cluster
+                sortie.write("\t"+str(portho_info[sp]))
+            else :
+                sortie.write("\t0")
+        sortie.write("\n")
+        
+        for cnt in dresults :
+            nbspecies = len(dresults[cnt].keys())
+            nbprots = sum( [ len(val) for val in dresults[cnt].values() ] )
+            new_line = str(nbspecies) + "\t"+ str(nbprots) + "\tNan"
+            for sp in lsp :
+                if dresults[cnt].has_key( str(sp) ) :
+                    prots = ",".join( dresults[cnt][str(sp)] )
+                    new_line += "\t" + prots
+                else :
+                    new_line += "\t*"
+            sortie.write( new_line + "\n" )
+        sortie.write("#cutoff:{}\torder:{}\trepeat:{}\tepsilon:{}\tminpts:{}\n"\
+                    .format(param.cutoff, param.order,param.maskrepeat,
+                            param.epsilon,param.minpts) )    
 
 def write_results_porthodaclusters( name_proteomes, portho_info, dresults, footer, param  ) :
     """Output results of DA + proteinortho clustering in a proteinortho fileformat way
@@ -308,43 +293,42 @@ def write_results_porthodaclusters( name_proteomes, portho_info, dresults, foote
     for sp in portho_info.keys( ) :
         tot_prot += len( portho_info[sp].keys( ) )
 
-    # create one single file
-    sortie = file( param.output, "w" )
-    sortie.write("#species\tproteins\talg.-conn.")
-    
-    for sp in lsp :
-        sortie.write("\t"+name_proteomes[sp])
-        
-    sortie.write("\n")
-    sortie.write("#"+str(len(lsp))+"\t"+str(tot_prot)+"\t-")
-    
-    for sp in lsp :
-        if portho_info.has_key( sp ) : # no key mean no protein of this specie found in a cluster
-            sortie.write("\t"+str(len(portho_info[sp].keys())))
-        else :
-            sortie.write("\t0")
-            
-    sortie.write("\n")
-    
-    for fam in dresults :
-        nbspecies = dresults[ fam ][ 0 ]
-        nbprot = dresults[ fam ][ 1 ]
-        nbconn = dresults[ fam ][ 2 ]
-        prots = dresults[ fam ][ 3 ]
-        new_line = nbspecies + "\t"+nbprot + "\t" + nbconn
-        species,lprots = zip(*prots)
+    # create one single file.
+    with open(param.output, "w") as sortie:
+        sortie.write("#species\tproteins\talg.-conn.")
         
         for sp in lsp :
-            if sp in species :
-                ind = species.index( sp )
-                new_line += "\t" + lprots[ind]
-                
-            else :
-                new_line += "\t*"
-                
-        sortie.write( new_line + "\n" )
+            sortie.write("\t"+name_proteomes[sp])
+            
+        sortie.write("\n")
+        sortie.write("#"+str(len(lsp))+"\t"+str(tot_prot)+"\t-")
         
-    sortie.write(footer.strip()+" cutoff:{}\torder:{}\trepeat:{}\tepsilon:{}\tminpts:{}\n"\
-                 .format(param.cutoff, param.order,param.maskrepeat,
-                         param.epsilon,param.minpts) )
-    sortie.close( )
+        for sp in lsp :
+            if portho_info.has_key( sp ) : # no key mean no protein of this specie found in a cluster
+                sortie.write("\t"+str(len(portho_info[sp].keys())))
+            else :
+                sortie.write("\t0")
+                
+        sortie.write("\n")
+        
+        for fam in dresults :
+            nbspecies = dresults[ fam ][ 0 ]
+            nbprot = dresults[ fam ][ 1 ]
+            nbconn = dresults[ fam ][ 2 ]
+            prots = dresults[ fam ][ 3 ]
+            new_line = nbspecies + "\t"+nbprot + "\t" + nbconn
+            species,lprots = zip(*prots)
+            
+            for sp in lsp :
+                if sp in species :
+                    ind = species.index( sp )
+                    new_line += "\t" + lprots[ind]
+                    
+                else :
+                    new_line += "\t*"
+                    
+            sortie.write( new_line + "\n" )
+            
+        sortie.write(footer.strip()+" cutoff:{}\torder:{}\trepeat:{}\tepsilon:{}\tminpts:{}\n"\
+                    .format(param.cutoff, param.order,param.maskrepeat,
+                            param.epsilon,param.minpts) )
