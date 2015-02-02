@@ -55,9 +55,9 @@ __vesion__ = "0.5"
 import os, sys, subprocess, multiprocessing, pickle
 import time, tarfile, shutil, shlex, argparse
 
-from porthoDom.proteinorthoDA_err import ProteinorthoError, DASimilarityError
-from porthoDom.proteinorthoDA_err import ExecutionError, DependencyError 
-from porthoDom.proteinorthoDA_err import ResultError
+from porthoDom.proteinorthoDom_err import ProteinorthoError, DASimilarityError
+from porthoDom.proteinorthoDom_err import ExecutionError, DependencyError 
+from porthoDom.proteinorthoDom_err import ResultError
 from porthoDom.proteinorthoDom_util import should_wait, check_program, timestamp
 from porthoDom.proteinorthoDom_util import error_clean, remove_dir, storage
 from porthoDom.proteinorthoDom_util import check_program_config, check_parameters
@@ -65,7 +65,7 @@ from porthoDom.proteinorthoDom_util import prepare_lock, config
 from porthoDom.proteinorthoDom_worker import subprocess_threaded_blastdone
 from porthoDom.proteinorthoDom_IO import read_multifasta, read_porthoparams
 from porthoDom.proteinorthoDom_IO import write_results_daclusters, extractPFidDA
-from porthoDom.proteinorthoDom_IO import write_results_porthoDAclusters
+from porthoDom.proteinorthoDom_IO import write_results_porthodaclusters
 from porthoDom.proteinorthoDom_IO import read_dadone
 from porthoDom.proteinorthoDom_algo import run_proteinortho_blast
 from porthoDom.proteinorthoDom_algo import cluster_domains, compute_similarity

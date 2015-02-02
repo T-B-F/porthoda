@@ -31,13 +31,13 @@ __all__ = [ "should_wait", "check_program", "timestamp", "error_clean",
             "remove_dir", "last_dir" ]
 
 # checking that the environment variable is present
-if not os.environ.get('PORTHODA'):
-    print >>sys.stderr, ("Please set the PORTHODA environ variable to the "
+if not os.environ.get('PORTHODOM'):
+    print >>sys.stderr, ("Please set the PORTHODOM environ variable to the "
                          "location of PATH.ini")
     sys.exit(1)
 
 config = ConfigParser.ConfigParser()
-pathconfig=os.path.join(os.getenv("PORTHODA"),"PATH.ini")
+pathconfig=os.path.join(os.getenv("PORTHODOM"),"PATH.ini")
 config.read(pathconfig)
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
-# proteinorthoDA is a wrapper around proteinortho.pl script using a 
+# proteinorthoDom is a wrapper around proteinortho.pl script using a 
 # pre-clustering step based on domain arrangement similarity to speed up the 
 # blast all against all step used by proteinorhto.
 # Copyright (C) 2013  Institute for  Evolution and Biodiversity
