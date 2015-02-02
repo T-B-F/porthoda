@@ -24,11 +24,11 @@ __institute__ = "Insitute for Evolution and Biodiversity"
 __lab__ = "Evolutionary Bioinformatics"
 __vesion__ = "0.5"
 
-import porthoDA,  sys
+import porthoDom,  sys
 
 if __name__ == '__main__':
-    """ Executable script for porthoDA modules
+    """ Executable script for porthoDom modules
     """
-    ext = porthoDA.porthoDA_main()
+    ext = porthoDom.porthoDom_main()
 
     sys.exit(ext)

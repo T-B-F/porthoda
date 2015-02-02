@@ -26,10 +26,10 @@ import os, sys, multiprocessing
 import numpy as np
 import networkx as nx
 
-from proteinorthoDA_err import DASimilarityError, ProteinorthoError
-from proteinorthoDA_util import timestamp, error_clean
-from proteinorthoDA_worker import  subprocess_threaded_blastonly
-from proteinorthoDA_worker import  subprocess_threaded_sim
+from proteinorthoDom_err import DASimilarityError, ProteinorthoError
+from proteinorthoDom_util import timestamp, error_clean
+from proteinorthoDom_worker import  subprocess_threaded_blastonly
+from proteinorthoDom_worker import  subprocess_threaded_sim
 
 import Pycluster
 from Optics import Optics

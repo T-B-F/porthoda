@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
- proteinorthoDA is a wrapper around proteinortho.pl script using a 
+ proteinorthoDom is a wrapper around proteinortho.pl script using a 
  pre-clustering step based on domain arrangement similarity to speed up the 
  blast all against all step used by proteinorhto.
 """
@@ -55,22 +55,22 @@ __vesion__ = "0.5"
 import os, sys, subprocess, multiprocessing, pickle
 import time, tarfile, shutil, shlex, argparse
 
-from porthoDA.proteinorthoDA_err import ProteinorthoError, DASimilarityError
-from porthoDA.proteinorthoDA_err import ExecutionError, DependencyError 
-from porthoDA.proteinorthoDA_err import ResultError
-from porthoDA.proteinorthoDA_util import should_wait, check_program, timestamp
-from porthoDA.proteinorthoDA_util import error_clean, remove_dir, storage
-from porthoDA.proteinorthoDA_util import check_program_config, check_parameters
-from porthoDA.proteinorthoDA_util import prepare_lock, config
-from porthoDA.proteinorthoDA_worker import subprocess_threaded_blastdone
-from porthoDA.proteinorthoDA_IO import read_multifasta, read_porthoparams
-from porthoDA.proteinorthoDA_IO import write_results_daclusters, extractPFidDA
-from porthoDA.proteinorthoDA_IO import write_results_porthodaclusters
-from porthoDA.proteinorthoDA_IO import read_dadone
-from porthoDA.proteinorthoDA_algo import run_proteinortho_blast
-from porthoDA.proteinorthoDA_algo import cluster_domains, compute_similarity
+from porthoDom.proteinorthoDA_err import ProteinorthoError, DASimilarityError
+from porthoDom.proteinorthoDA_err import ExecutionError, DependencyError 
+from porthoDom.proteinorthoDA_err import ResultError
+from porthoDom.proteinorthoDom_util import should_wait, check_program, timestamp
+from porthoDom.proteinorthoDom_util import error_clean, remove_dir, storage
+from porthoDom.proteinorthoDom_util import check_program_config, check_parameters
+from porthoDom.proteinorthoDom_util import prepare_lock, config
+from porthoDom.proteinorthoDom_worker import subprocess_threaded_blastdone
+from porthoDom.proteinorthoDom_IO import read_multifasta, read_porthoparams
+from porthoDom.proteinorthoDom_IO import write_results_daclusters, extractPFidDA
+from porthoDom.proteinorthoDom_IO import write_results_porthoDAclusters
+from porthoDom.proteinorthoDom_IO import read_dadone
+from porthoDom.proteinorthoDom_algo import run_proteinortho_blast
+from porthoDom.proteinorthoDom_algo import cluster_domains, compute_similarity
 
-__all__ = ['porthoDA_main']
+__all__ = ['porthoDom_main']
 
 
 def process_arguments():
@@ -143,8 +143,8 @@ def process_arguments():
     return params
     
 # main fonction
-def porthoDA_main():
-    """ proteinorthoDA is a python package and software build around the 
+def porthoDom_main():
+    """ proteinorthoDom is a python package and software build around the 
     orthologous protein detector proteinortho.
     proteinorthoDA use domain annotation to restrict the orthologous proteins
     space search of proteinortho by only looking at protein sharing a similar
@@ -672,7 +672,7 @@ def porthoDA_main():
     return 0
     
 if __name__ == "__main__":
-    ext = porthoDA_main()
+    ext = porthoDom_main()
     sys.exit(ext)
 
 

@@ -24,7 +24,7 @@ import subprocess
 import shlex
 import tarfile
 import shutil
-from proteinorthoDA_util import last_dir
+from proteinorthoDom_util import last_dir
 
 __author__ = "Tristan Bitard Feildel"
 __email__ = "t.bitard.feildel@uni-muenster.de"
