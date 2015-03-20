@@ -239,7 +239,7 @@ def timestamp(s,start_time):
     print s.ljust(44), time.strftime('%H:%M:%S', t)  
 
 
-def check_parameters(params):
+def check_parameters(params, path_lock, starting_time):
     """ check the compatibility between the different parameters, raise an 
     ArgumentError if an incompatibility occurs
     

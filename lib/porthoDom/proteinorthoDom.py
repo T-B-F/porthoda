@@ -98,7 +98,7 @@ def process_arguments():
        help="control the order of magnitude used by compute_similarity [def:1]")
     parser.add_argument("-o", action="store", dest="output", help="output file")
     parser.add_argument("-n", action="store", dest="nb_job", 
-        help="number of job running at the same time", type=int, default=50)
+        help="number of job running at the same time [nb cpu]", type=int, default=50)
     parser.add_argument("-k", action="store", dest="kcluster", type=int , 
         help="number of cluster")
     parser.add_argument("--maskrepeat", action="store_true", dest="maskrepeat",
@@ -261,7 +261,7 @@ def porthoDom_main():
     ###########################################################################
     # parameter check
     try:
-        bothpfamonlyanddone, bothblastonlyanddone = check_parameters(p)
+        bothpfamonlyanddone, bothblastonlyanddone = check_parameters(p, path_lock, starting_time)
     except:
         raise
 
@@ -308,6 +308,8 @@ def porthoDom_main():
         if p.verbose:
             timestamp("Reading fasta files ... ", starting_time)
         for line in inf:
+            if line[0] == "\n":
+                continue
             path_proteomes[cnt] = line.strip()
             _, name_proteomes[cnt] = os.path.split(line.strip())
             dfasta = read_multifasta(line.strip())
@@ -323,7 +325,7 @@ def porthoDom_main():
         lp = []
         for k in path_proteomes:
             pfam_scan_out = os.path.join(da_dir, str(k)+".pfamscan")
-            cmd = "{} -fasta {} -dir {}, -outfile {} ".format(
+            cmd = "{} -fasta {} -dir {} -outfile {} ".format(
                 path_pfam_scan, path_proteomes[k], p.pfamdb, pfam_scan_out)
             cmd = shlex.split(cmd)
             pid = subprocess.Popen(cmd)
