@@ -99,7 +99,7 @@ def extractPFidDA( pfamscanfile , replace_by_clan = False, mask_repeat=False) :
     """
     dprot = { }
     with open(pfamscanfile)  as inf:
-        line = h.readline( ) # header
+        line = inf.readline( ) # header
         for line in inf:
             if line[0] == "\n" or line[0] == "#" : 
                 continue 
