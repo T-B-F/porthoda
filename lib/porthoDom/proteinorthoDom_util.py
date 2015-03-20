@@ -214,6 +214,8 @@ def check_program_config(sections=[]):
     allhere = True
     if not sections:
         sections = config.sections()
+    print("#####################")
+    print(sections)
     for section in sections:
         for key, program in config.items(section):
             path = check_program(program)
