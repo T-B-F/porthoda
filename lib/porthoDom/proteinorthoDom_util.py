@@ -329,7 +329,7 @@ def prepare_lock(params, path_lock, path_lock_param):
 
     if os.path.isfile(path_lock_param): 
         old_cutoff = params.cutoff
-        olf_order = params.order
+        old_order = params.order
         with open(path_lock_param) as f:
             for i, line in enumerate(f):
                 if i == 0:
