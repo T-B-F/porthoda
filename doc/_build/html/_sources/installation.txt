@@ -64,3 +64,4 @@ If administrator right are provided
     sudo python install setup.py
 
 
+The C component of porthoDom also require the boost library to be installed.

@@ -14,7 +14,7 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   
   
@@ -25,8 +25,6 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
   
 
   
@@ -46,12 +44,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        
-          <a href="index.html" class="fa fa-home"> porthoDom</a>
-        
-        
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+        <a href="index.html" class="fa fa-home"> porthoDom</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -61,9 +56,8 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-          
-          
-              <ul class="current">
+        
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirement">Requirement</a></li>
@@ -79,7 +73,6 @@
 <li class="toctree-l1"><a class="reference internal" href="log.html">Log</a></li>
 </ul>
 
-          
         
       </div>
       &nbsp;
@@ -110,7 +103,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main" class="document">
+          <div role="main">
             
   <div class="section" id="installation">
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -118,11 +111,11 @@
 <h2>Requirement<a class="headerlink" href="#requirement" title="Permalink to this headline">¶</a></h2>
 <p><strong class="program">porthoDom</strong> is using several tools that need to be installed
 independtly on your computer. The localisation of thee tools have to be
-specified in the configuration file <code class="docutils literal"><span class="pre">PATH.ini</span></code>. The <code class="docutils literal"><span class="pre">PATH.ini</span></code> file is a
+specified in the configuration file <tt class="docutils literal"><span class="pre">PATH.ini</span></tt>. The <tt class="docutils literal"><span class="pre">PATH.ini</span></tt> file is a
 basic configuration file used by the python <a class="reference external" href="https://docs.python.org/2/library/configparser.html">ConfigParser module</a> .</p>
 <blockquote>
 <div><div class="line-block">
-<div class="line"><code class="docutils literal"><span class="pre">PATH.ini</span></code> syntax:</div>
+<div class="line"><tt class="docutils literal"><span class="pre">PATH.ini</span></tt> syntax:</div>
 <div class="line">[annotation]</div>
 <div class="line">pfamscan:/opt/global/bin/pfam_scan.pl</div>
 <div class="line">[similarity]</div>
@@ -130,7 +123,7 @@ basic configuration file used by the python <a class="reference external" href="
 </div>
 </div></blockquote>
 <p>The following executable should be installed on your computer and present in
-the <code class="docutils literal"><span class="pre">PATH.ini</span></code> file:</p>
+the <tt class="docutils literal"><span class="pre">PATH.ini</span></tt> file:</p>
 <blockquote>
 <div><ul class="simple">
 <li>pfam_scan.pl, script from the <a class="reference external" href="ftp://ftp.sanger.ac.uk/pub/databases/Pfam/Tools/">Pfam ftp</a></li>
@@ -149,7 +142,7 @@ similarity and a python gluing everything together.</p>
 </pre></div>
 </div>
 <p>Be sure that the local installation path is in our python environment path
-add  <code class="docutils literal"><span class="pre">$HOME/.local/lib</span></code> in <code class="docutils literal"><span class="pre">PYTHONPATH</span></code></p>
+add  <tt class="docutils literal"><span class="pre">$HOME/.local/lib</span></tt> in <tt class="docutils literal"><span class="pre">PYTHONPATH</span></tt></p>
 <div class="highlight-sh"><div class="highlight"><pre><span class="nb">export </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$HOME</span>/.local/lib/
 </pre></div>
 </div>
@@ -163,6 +156,7 @@ be accessible by the system</p>
 <div class="highlight-sh"><div class="highlight"><pre>sudo python install setup.py
 </pre></div>
 </div>
+<p>The C component of porthoDom also require the boost library to be installed.</p>
 </div>
 </div>
 
@@ -172,7 +166,7 @@ be accessible by the system</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="intro.html" class="btn btn-neutral" title="Introduction"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -188,8 +182,7 @@ be accessible by the system</p>
     </p>
   </div>
 
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
 </footer>
         </div>
       </div>
@@ -214,7 +207,7 @@ be accessible by the system</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
