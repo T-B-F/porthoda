@@ -214,12 +214,9 @@ def check_program_config(sections=[]):
     allhere = True
     if not sections:
         sections = config.sections()
-    print("#####################")
-    print(sections)
     for section in sections:
         for key, program in config.items(section):
             path = check_program(program)
-            print section, key, program, path
             if path == None:
                 print >>sys.stderr, ("Error : unable to find program path {} "
                                      "from config file ".format(program))
@@ -329,7 +326,7 @@ def prepare_lock(params, path_lock, path_lock_param):
 
     if os.path.isfile(path_lock_param): 
         old_cutoff = params.cutoff
-        olf_order = params.order
+        old_order = params.order
         with open(path_lock_param) as f:
             for i, line in enumerate(f):
                 if i == 0:

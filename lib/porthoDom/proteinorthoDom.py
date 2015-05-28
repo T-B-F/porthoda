@@ -88,7 +88,7 @@ def process_arguments():
         help="temporary directory for proteinortho intermediate results")
     parser.add_argument("-i", action="store", dest="listproteomes",  
         help="files with proteomes list", required=True)
-    parser.add_argument("-c", action="store", dest="cutoff", type=float,
+    parser.add_argument("-c", action="store", dest="cutoff", type=float, default=0.2
         help="cutoff similarity, only score higher than cutoff are conserved")
     parser.add_argument("-m", action="store", dest="matrix", 
         help="path to matrix file (must correspond to the pfam database)")
@@ -237,7 +237,7 @@ def porthoDom_main():
     # check that program in PATH.init (read by config in proteinorthoDA_util.py
     # are all here
     res_check = check_program_config()
-    print res_check
+    
     if not res_check:
         msg = ("\nError: Unable to find all programs, please check your "
         "PATH.init")
@@ -246,7 +246,7 @@ def porthoDom_main():
     path_pfam_scan = config.get("annotation", "pfamscan")
     path_proteinortho = config.get("clustering", "proteinortho")
     path_compute_similarity = config.get("similarity", "dasim")
-    
+
     if p.verbose:
         print path_pfam_scan.ljust(44), " ... found"
         print path_proteinortho.ljust(44), " ... found"        
