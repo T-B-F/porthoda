@@ -99,7 +99,7 @@ def main():
     nvals = len(col_ids)
     
     with open(params.outmatrix, "wb") as outf:
-        outf.write(struct.pack("<10s", params.name))
+        outf.write(struct.pack("<10s", str.encode(params.name, "utf-8")))
         outf.write(struct.pack("<i", ndomains))
         outf.write(struct.pack("<i", nvals))
         for ids in allids:
