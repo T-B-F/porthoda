@@ -6,6 +6,7 @@ from math import log
 import argparse
 import os, sys
 import numpy as np
+import struct
 
 def getData(line, name):
     """ get values from hhsearch similarity comparison
@@ -72,10 +73,11 @@ def main():
     # mapping pfamid, readl idx (some value can be missing in domain numbering
     dnames = dict(zip(names, range(len(names))))
        
-    vals, col_ids, row_ids = [], [], []
+    vals, allids, col_ids, row_ids = [], [], [], []
     for row_num, inputf in enumerate(inputfiles):
         name = names[row_num]
         # read data
+        allids.append(int(name[2:]))
         row_ids.append(len(col_ids))
         with open(inputf) as inf:
             found = False
