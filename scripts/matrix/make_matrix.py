@@ -2,7 +2,7 @@
 """ read each file and create the appropriated matrix in CRS format
 CRS format code adapted from Carsten Kemena C++ code
 """
-from math import log
+from math import log, floor
 import argparse
 import os, sys
 import numpy as np
@@ -32,7 +32,7 @@ def getData(line, name):
     else:
         print("Error, unknow name to extract {}".format(name), file=sys.stderr)
         sys.exit(1)
-    return val
+    return int(floor(val+ 0.5))
 
 def prefix_file(path):
     """ get name of a file without extension out of a path
@@ -109,7 +109,7 @@ def main():
         for cids in col_ids:
             outf.write(struct.pack("<i", cids))
         for val in vals:
-            outf.write("<h", val);
+            outf.write(struct.pack("<h", val))
         
     sys.exit( 0 )
     
