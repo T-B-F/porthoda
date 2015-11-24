@@ -11,7 +11,7 @@ class DMPM:
 		self.n_domains=0
 		self.n_vals=0
 		with open(in_f, "rb") as in_F:
-			self.name=struct.unpack('<10s', in_F.read(10))[0]
+			self.name=struct.unpack('<10s', in_F.read(10))[0].decode()
 			self.n_domains=struct.unpack('<i', in_F.read(4))[0]
 			self.n_vals=struct.unpack('<i', in_F.read(4))[0]
 			ids = struct.unpack('<i'*self.n_domains, in_F.read(4*self.n_domains))
