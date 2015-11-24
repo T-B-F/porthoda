@@ -9,7 +9,6 @@ def get_cmd():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", action="store", dest="inputfile", help="file with multiple hmm models")
-    parser.add_argument("-m", action="store", dest="mapping", help="output mapping file between name and id")
     parser.add_argument("-o", action="store", dest="dirout", help="directory to store separated hmm models")
     params = parser.parse_args()
     return params
@@ -26,7 +25,7 @@ def main():
     data = dict()
     # read hmm files
     # the file from hhsuite database is often weirdly encoded latin-1 seems to solve it
-    with open(params.inputfile, "r", encoding='latin-1') as input_handle, open(params.mapping, "w") as mapoutf:
+    with open(params.inputfile, "r", encoding='latin-1') as input_handle:
         for line in input_handle:
             #print(line)
             if name:
@@ -40,7 +39,6 @@ def main():
                 tmp = line.split()
                 name = tmp[1].split(".")[0]
                 idname = tmp[3]
-                mapoutf.write("{} {}\n".format(name, idname))
                 pathout = os.path.join(params.dirout, name+".hmm")
                 outf = open(pathout, "w")
                 for line in lines:
