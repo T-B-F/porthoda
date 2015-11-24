@@ -102,14 +102,10 @@ def main():
         outf.write(struct.pack("<10s", str.encode(params.name, "utf-8")))
         outf.write(struct.pack("<i", ndomains))
         outf.write(struct.pack("<i", nvals))
-        for ids in allids:
-            outf.write(struct.pack("<i", ids))
-        for rids in row_ids:
-            outf.write(struct.pack("<i", rids))
-        for cids in col_ids:
-            outf.write(struct.pack("<i", cids))
-        for val in vals:
-            outf.write(struct.pack("<h", val))
+        outf.write(struct.pack("<"+"i"*ndomains, *allids)) 
+        outf.write(struct.pack("<"+"i"*ndomains, *row_ids))
+        outf.write(struct.pack("<"+"i"*nvals,    *col_ids))
+        outf.write(struct.pack("<"+"h"*nvals,    *vals))
         
     sys.exit( 0 )
     
