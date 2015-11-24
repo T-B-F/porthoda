@@ -33,17 +33,6 @@ def getData(line, name):
         sys.exit(1)
     return val
 
-def read_mapping(path):
-    """ read mapping between id and names
-    """
-    data = dict()
-    with open(path) as inf:
-        for line in inf:
-            tmp = line.split()
-            # key is the name, value is the id, ex( data["7tm_1"] = "PF00001"
-            data[tmp[1]] = tmp[0]
-    return data
-
 def prefix_file(path):
     """ get name of a file without extension out of a path
     """
@@ -55,8 +44,6 @@ def get_cmd():
     parser = argparse.ArgumentParser( )
     parser.add_argument("-i", action="store", dest="listres", nargs="+", 
                         help="list of hhsearch score files")
-    parser.add_argument("-m", action="store", dest="mapping", 
-                        help="mapping between names and id")
     parser.add_argument("-n", action="store", dest="name", 
                         help="matrix name")
     parser.add_argument("-s", action="store", dest="scorename", 
@@ -64,7 +51,7 @@ def get_cmd():
                             "S-AASS","PROBAB", "SCORE", "LOG-EVAL"])
     parser.add_argument("-t", action="store", dest="threshold", type=float,
                         help="threshold applied to the score", default=1)
-    parser.add_argument("-c", action="store", dest="cutoff_evalue", 
+    parser.add_argument("-c", action="store", dest="cutoff", 
                         help="cutoff evalue", type=float, default=0.1)
     parser.add_argument("-o", action="store", dest="outmatrix", 
                         help="output matrix")
@@ -81,13 +68,13 @@ def main():
 
     # pfam num id
     # TODO need to be change for other databases
-    names, inputfiles = zip(**sorted([(prefix_file(f), f) for f in params.listres]))
+    names, inputfiles = list(zip(*sorted([(os.path.basename(f).split(".")[0], f) for f in params.listres])))
     # mapping pfamid, readl idx (some value can be missing in domain numbering
     dnames = dict(zip(names, range(len(names))))
        
     vals, col_ids, row_ids = [], [], []
     for row_num, inputf in enumerate(inputfiles):
-        name = names[k]
+        name = names[row_num]
         # read data
         row_ids.append(len(col_ids))
         with open(inputf) as inf:
@@ -96,11 +83,11 @@ def main():
                 tmp = line.split()
                 if found:
                     target = tmp[0]
-                    col_num = dnames[mapping_name2id[target]]
-                    if col_nums >= row_num:
+                    col_num = dnames[target]
+                    if col_num >= row_num:
                         val = getData(line, params.scorename)
                         evalue = getData(line, "LOG-EVAL")/(-1.443) # evalue formula in HHsearch output -1.443 * hit.logEval                     
-                        if evalue < log(cutoff) and val > params.threshold:
+                        if evalue < log(params.cutoff) and val > params.threshold:
                             vals.append(val)
                             col_ids.append(col_num)
                 elif line.startswith("TARGET"):
