@@ -28,7 +28,7 @@ fi
 ## important stuff starts here ##
 
 # cut the inital pfam file into smaller pieces
-python cut_seed.py -i $hmmdb -o $tmphmm -m ${workout}/map_name2id.dat
+python cut_seed.py -i $hmmdb -o $tmphmm 
 
 # run for each pfam pieces hhsearch against the hmmdatabase
 for hmm in `ls $tmphmm`
@@ -37,7 +37,7 @@ do
 done
 
 # read hhsearch scores and make domain matrix
-python make_matrix.py -i $tmphhsearch/*.scores -o $matrix -n matbin_$simcutoff -s PROBAB -m ${workout}/map_name2id.dat -t $simcutoff
+python make_matrix.py -i $tmphhsearch/*.scores -o $matrix -n matbin_$simcutoff -s PROBAB -t $simcutoff
 
 # WARNING if this script is not working
 # python make_matrix2.py -i $tmphhsearch/*.scores -o $workout/tmp_matrix.dat -d PROBAB -m ${workout}/map_name2id.dat 
