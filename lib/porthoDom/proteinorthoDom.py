@@ -90,7 +90,7 @@ def process_arguments():
         help="files with proteomes list", required=True)
     parser.add_argument("-c", action="store", dest="cutoff", type=float, default=0.2
         help="cutoff similarity, only score higher than cutoff are conserved")
-    parser.add_argument("-m", action="store", dest="matrix", 
+    parser.add_argument("-m", action="store", dest="matrix",  required=True,
         help="path to matrix file (must correspond to the pfam database)")
     parser.add_argument("-p", action="store", dest="pfamdb", 
         help="path to pfam database (must correspond to the matrix)")
