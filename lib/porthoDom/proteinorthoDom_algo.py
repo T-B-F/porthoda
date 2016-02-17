@@ -150,11 +150,11 @@ def run_proteinortho_blast ( clusters, uniq_da, ddfasta, params) :
         result, path = dicres[cnt]
         if  result.ready( ) != True and result.successful() != True :
             msg = "\nError : Unable to run blast for file {} ".format( path )
-            error_clean( msg, 1, os.path.join(p.workdir,".lock"), p.verbose, starting_time )
+            error_clean( msg, 1, os.path.join(params.workdir,".lock"), params.verbose, starting_time )
             raise ProteinorthoError( msg ) 
         err = result.get( )
         if err != "" :
-            error_clean( err, 1, os.path.join(p.workdir,".lock"), p.verbose, starting_time )
+            error_clean( err, 1, os.path.join(params.workdir,".lock"), params.verbose, starting_time )
             raise ProteinorthoError( err )
         
     return listsub

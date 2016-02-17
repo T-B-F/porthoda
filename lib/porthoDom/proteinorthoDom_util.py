@@ -268,7 +268,7 @@ def check_parameters(params, path_lock, starting_time):
     if params.pfamonly and params.pfamdone:
         msg = "\nError: Cannot use both pfamonly and pfamdone at the same time"
         msg += "\n"
-        error_clean(msg, 1, path_lock, p.verbose, starting_time)
+        error_clean(msg, 1, path_lock, params.verbose, starting_time)
         raise ArgumentError(msg)
     
     if params.pfamonly == False and params.pfamdone == False:
