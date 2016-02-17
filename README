@@ -11,7 +11,7 @@ Requirement, the following softwares and database must be installed
 pfam_scan.pl
 hmm database pfam-27.0
 hmmscan 
-proteinortho
+proteinortho (version 4.0, 5.+ not supported)
 libboost
 
 Method
