@@ -1,21 +1,20 @@
-porthoDom 
 python wrapper using protein domain to speed up proteinortho
 ============================================================
 
-Documentation
--------------
-http://porthodom.readthedocs.org/en/latest/
 
 Requirement, the following softwares and database must be installed
 --------------------------------------------------------------------
-pfam_scan.pl
-hmm database pfam-27.0
-hmmscan 
-proteinortho (version 4.0, 5.+ not supported)
-libboost
+
+* python 2.7
+* pfam_scan.pl
+* hmm database pfam-27.0
+* hmmscan 
+* proteinortho (version 4.0, 5.+ not supported)
+* libboost
 
 Method
 ---------
+
 porthoDom is a wrapper around proteinortho version 4.26.
 Latter version are currently not supported but we are working on it.
 
@@ -42,25 +41,34 @@ similarity and a python gluing everything together.
 For a local installation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-python install setup.py --user
+    python install setup.py --user
 
 Be sure that the local installation path is in our python environment path
 add  $HOME/.local/lib in PYTHONPATH
-export PYTHONPATH=$HOME/.local/lib/
+
+    export PYTHONPATH=$HOME/.local/lib/
 
 add the previous line to your bashrc or personal bashrc
-echo "export PYTHONPATH=$HOME/.local/lib/" >> ~/.bashrc
+
+    echo "export PYTHONPATH=$HOME/.local/lib/" >> ~/.bashrc
 
 move the local compute_similarity program from bin to a directory where it will
 be accessible by the system
 
+
 If administrator right are provided
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-sudo python install setup.py
+    sudo python install setup.py
 
 
-Log
----
+How to cite
+-----------
 
-2015-03-20  * fixed bug in check_parameters - incorrect numbers of parameters *
+Domain similarity based orthology detection, Tristan Bitard-Feildel, Carsten Kemena, Jenny M Greenwood and Erich Bornberg-Bauer
+
+BMC Bioinformatics2015 16:154
+
+http://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-015-0570-8
+
+
