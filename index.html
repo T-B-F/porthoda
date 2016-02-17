@@ -27,11 +27,14 @@
 <h2>
 <a id="requirement-the-following-softwares-and-database-must-be-installed" class="anchor" href="#requirement-the-following-softwares-and-database-must-be-installed" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirement, the following softwares and database must be installed</h2>
 
-<p>pfam_scan.pl
-hmm database pfam-27.0
-hmmscan 
-proteinortho (version 4.0, 5.+ not supported)
-libboost</p>
+<ul>
+<li>python 2.7</li>
+<li>pfam_scan.pl</li>
+<li>hmm database pfam-27.0</li>
+<li>hmmscan </li>
+<li>proteinortho (version 4.0, 5.+ not supported)</li>
+<li>libboost</li>
+</ul>
 
 <h2>
 <a id="method" class="anchor" href="#method" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Method</h2>
@@ -61,27 +64,26 @@ similarity and a python gluing everything together.</p>
 <p>For a local installation</p>
 
 <pre><code>
-python install setup.py --user
+    python install setup.py --user
 
 Be sure that the local installation path is in our python environment path
 add  $HOME/.local/lib in PYTHONPATH
-export PYTHONPATH=$HOME/.local/lib/
+
+    export PYTHONPATH=$HOME/.local/lib/
 
 add the previous line to your bashrc or personal bashrc
-echo "export PYTHONPATH=$HOME/.local/lib/" &gt;&gt; ~/.bashrc
+
+    echo "export PYTHONPATH=$HOME/.local/lib/" &gt;&gt; ~/.bashrc
 
 move the local compute_similarity program from bin to a directory where it will
 be accessible by the system
 
+
 If administrator right are provided
 </code></pre>
 
-<p>sudo python install setup.py</p>
-
-<h2>
-<a id="log" class="anchor" href="#log" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Log</h2>
-
-<p>2015-03-20  * fixed bug in check_parameters - incorrect numbers of parameters *</p>
+<pre><code>sudo python install setup.py
+</code></pre>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/T-B-F/porthoda">Porthoda</a> is maintained by <a href="https://github.com/T-B-F">T-B-F</a>.</span>
