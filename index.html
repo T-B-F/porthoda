@@ -19,12 +19,7 @@
     </section>
 
     <section class="main-content">
-      <p>porthoDom </p>
-
-<h1>
-<a id="python-wrapper-using-protein-domain-to-speed-up-proteinortho" class="anchor" href="#python-wrapper-using-protein-domain-to-speed-up-proteinortho" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>python wrapper using protein domain to speed up proteinortho</h1>
-
-<h2>
+      <h2>
 <a id="requirement-the-following-softwares-and-database-must-be-installed" class="anchor" href="#requirement-the-following-softwares-and-database-must-be-installed" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirement, the following softwares and database must be installed</h2>
 
 <ul>
@@ -61,29 +56,38 @@ standard proteinortho output file is created.</p>
 <p>porthoDom is composed of two parts, a C program computing the pairwise domain
 similarity and a python gluing everything together.</p>
 
-<p>For a local installation</p>
+<h3>
+<a id="for-a-local-installation" class="anchor" href="#for-a-local-installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>For a local installation</h3>
 
-<pre><code>
-    python install setup.py --user
-
-Be sure that the local installation path is in our python environment path
-add  $HOME/.local/lib in PYTHONPATH
-
-    export PYTHONPATH=$HOME/.local/lib/
-
-add the previous line to your bashrc or personal bashrc
-
-    echo "export PYTHONPATH=$HOME/.local/lib/" &gt;&gt; ~/.bashrc
-
-move the local compute_similarity program from bin to a directory where it will
-be accessible by the system
-
-
-If administrator right are provided
+<pre><code>python install setup.py --user
 </code></pre>
+
+<p>Be sure that the local installation path is in our python environment path
+add  $HOME/.local/lib in PYTHONPATH</p>
+
+<pre><code>export PYTHONPATH=$HOME/.local/lib/
+</code></pre>
+
+<p>add the previous line to your bashrc or personal bashrc</p>
+
+<pre><code>echo "export PYTHONPATH=$HOME/.local/lib/" &gt;&gt; ~/.bashrc
+</code></pre>
+
+<p>move the local compute_similarity program from bin to a directory where it will
+be accessible by the system</p>
+
+<h3>
+<a id="if-administrator-right-are-provided" class="anchor" href="#if-administrator-right-are-provided" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>If administrator right are provided</h3>
 
 <pre><code>sudo python install setup.py
 </code></pre>
+
+<h2>
+<a id="how-to-cite" class="anchor" href="#how-to-cite" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to cite</h2>
+
+<p>Domain similarity based orthology detection. <strong>Tristan Bitard-Feildel</strong>, Carsten Kemena, Jenny M Greenwood and Erich Bornberg-Bauer. <strong>BMC Bioinformatics</strong> 2015 16:154</p>
+
+<p><a href="http://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-015-0570-8">BMC paper</a></p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/T-B-F/porthoda">Porthoda</a> is maintained by <a href="https://github.com/T-B-F">T-B-F</a>.</span>
